@@ -6,6 +6,7 @@ class Game(ShowBase):
     def __init__(self):
         super().__init__()
         self.land = Mapmanager()
+        self.land.loadLand('land.txt')
         
         
 game = Game()
