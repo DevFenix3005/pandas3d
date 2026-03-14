@@ -44,7 +44,7 @@ class Hero:
         self.hero.reparentTo(render)
         self.cameraBind()
         self.accept_events()
-        self.mode = True
+        self.mode = False
 
     def cameraBind(self):
         base.disableMouse()
@@ -79,6 +79,13 @@ class Hero:
         base.accept("d", self.right)
         base.accept("d" + "-repeat", self.right)
 
+        base.accept("e", self.up)
+        base.accept("e" + "-repeat", self.up)
+
+        base.accept("q", self.down)
+        base.accept("q" + "-repeat", self.down)
+
+        base.accept("z", self.change_mode)
 
     def change_view(self):
         if self.cameraOn:
@@ -110,13 +117,24 @@ class Hero:
         self.hero.setPos(pos)
 
     def try_move(self, angle):
-        pass
+        pos = self.look_at(angle)
+        if self.land.isEmpty(pos):
+            pos = self.land.findHighestEmpty(pos)
+            self.hero.setPos(pos)
+        else:
+            pos = pos[0], pos[1], pos[2] + 1
+            if self.land.isEmpty(pos):
+                self.hero.setPos(pos)
 
     def move_to(self, angle):
         if self.mode:
             self.just_move(angle)
         else:
             self.try_move(angle)
+
+    def fly(self, value):
+        if self.mode:
+            self.hero.setZ(self.hero.getZ() + value)
 
     def forward(self):
         angle = self.hero.getH() % 360
@@ -133,3 +151,16 @@ class Hero:
     def right(self):
         angle = (self.hero.getH() + 270) % 360
         self.move_to(angle)
+
+    def up(self):
+        self.fly(1)
+
+    def down(self):
+        self.fly(-1)
+
+    def change_mode(self):
+        if self.mode:
+            self.mode = False
+            self.hero.setZ(1)
+        else:
+            self.mode = True
