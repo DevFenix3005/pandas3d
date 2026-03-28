@@ -87,6 +87,12 @@ class Hero:
 
         base.accept("z", self.change_mode)
 
+        base.accept("b", self.build)
+        base.accept("v", self.destroy)
+
+        base.accept("k", self.land.saveMap)
+        base.accept("l", self.land.loadMap)
+
     def change_view(self):
         if self.cameraOn:
             self.cameraUp()
@@ -164,3 +170,19 @@ class Hero:
             self.hero.setZ(1)
         else:
             self.mode = True
+
+    def build(self):
+        angle = self.hero.getH() % 360
+        pos = self.look_at(angle)
+        if self.mode:
+            self.land.addBlock(pos)
+        else:
+            self.land.buildBlock(pos)
+
+    def destroy(self):
+        angle = self.hero.getH() % 360
+        pos = self.look_at(angle)
+        if self.mode:
+            self.land.delBlock(pos)
+        else:
+            self.land.delBlockFrom(pos)

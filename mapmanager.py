@@ -1,3 +1,5 @@
+import pickle
+
 class Mapmanager:
     def __init__(self):
         self.model = "models/block.egg"
@@ -25,6 +27,26 @@ class Mapmanager:
         self.block.setPos(posicion)
         self.block.reparentTo(self.land)
         self.block.setTag("at", str(posicion))
+
+    def delBlock(self, position):
+        blocks = self.findBlocks(position)
+        for block in blocks:
+            block.removeNode()
+
+    def buildBlock(self, pos):
+        x, y, z = pos
+        new = self.findHighestEmpty(pos)
+        if new[2] <= z + 1:
+            self.addBlock(new)
+
+    def delBlockFrom(self, position):
+        x, y, z = self.findHighestEmpty(
+            position
+        )  # las coordenadas del bloque más alto desocupado frente al jugador
+        pos = x, y, z - 1
+        blocks = self.findBlocks(pos)
+        for block in blocks:
+            block.removeNode()
 
     def getColor(self, z):
         len_colors = len(self.colors)
@@ -67,3 +89,20 @@ class Mapmanager:
         while not self.isEmpty((x, y, z)):
             z += 1
         return (x, y, z)
+
+    def saveMap(self):
+        blocks = self.land.getChildren()
+        with open("my_map.dat", "wb") as fout:
+            pickle.dump(len(blocks), fout)
+            for block in blocks:
+                x, y, z = block.getPos()
+                pos = (int(x), int(y), int(z))
+                pickle.dump(pos, fout)
+
+    def loadMap(self):
+        self.clear()
+        with open("my_map.dat", "rb") as fin:
+            length = pickle.load(fin)
+            for i in range(length):
+                pos = pickle.load(fin)
+                self.addBlock(pos)
